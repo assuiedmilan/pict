@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   # Configuration type to build. RelWithDebInfo keeps PDBs for the NuGet package.
