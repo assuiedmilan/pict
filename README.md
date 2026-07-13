@@ -25,45 +25,40 @@ The most recent **pict.exe** is available at https://github.com/microsoft/pict/r
 # Contributing
 
 PICT consists of the following projects:
- * **api**: The core combinatorial engine,
- * **cli**: PICT.EXE command-line tool,
- * **clidll**: PICT.EXE client repackaged as a Windows DLL to be used in-proc,
- * **api-usage**: A sample of how the engine API can be used,
- * **clidll-usage**: A sample of how the PICT DLL is to be used.
+ * **api**: The core combinatorial engine, built as the static library **pict_api**,
+ * **cli**: The PICT command-line tool, built as the executable **pict_cli**.
 
-## Building and testing on Windows with MsBuild
-Use **pict.sln** to open the solution in Visual Studio 2022. You will need VC++ build tools installed. See https://www.visualstudio.com/downloads/ for details.
+The **clidll**, **api-usage**, and **clidll-usage** directories contain legacy sample/wrapper sources and are not part of the build.
 
-PICT uses MsBuild for building. **_build.cmd** script in the root directory will build both Debug and Release from the command-line.
+## Building and testing (Windows, macOS, Linux, *BSD)
+PICT uses CMake as its only build system. Assuming an installation of CMake and a C++17 toolchain (MSVC, Clang, or GCC), the following set of commands will build PICT and run the tests from the directory `build`:
+```
+> cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
+> cmake --build build --config Release
+> ctest --test-dir build -C Release
+```
 
-The **test** folder contains all that is necessary to test PICT. You need Perl to run the tests. **_test.cmd** is the script that does it all.
+On Windows, `cmake -S . -B build` generates a Visual Studio solution in **build/PICT.sln** which you can open in Visual Studio 2022 instead of building from the command line.
+
+The **test** folder contains all that is necessary to test PICT. You need Perl to run the tests (on Windows, e.g. [Strawberry Perl](https://strawberryperl.com/)); CMake registers the test suite only when Perl is found.
 
 The test script produces a log: **dbg.log** or **rel.log** for the Debug and Release bits respectively. Compare them with their committed baselines and make sure all the differences can be explained.
 
 >There are tests which randomize output which typically make it different on each run. These results should be masked in the baseline but currently aren't.
 
-## Building on Linux, OS/X, *BSD, etc.
-PICT uses CMake to build on Linux.
-Assuming installation of CMake and C++ toolchain, following set of commands will build and run tests in the directory `build`
-```
-> cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
-> cmake --build build
-> pushd build && ctest -V && popd
-```
-
 ## Debugging
 
-Most commonly, you will want to debug the command-line tool. Start in the **pictcli** project, **cli/pict.cpp** file. You'll find **wmain** routine there which would be a convenient place to put the very first breakpoint.
+Most commonly, you will want to debug the command-line tool. Start in the **pict_cli** target, **cli/pict.cpp** file. You'll find **wmain** routine there which would be a convenient place to put the very first breakpoint.
 
 ## PICT as a container
 
 To build a container image with PICT, just execute
 
-    make image-build
+    podman build --layers=true -t pict:latest .
 
 Once built, you can run it with a sample model as follows
 
-    make image-run
+    podman run -it --rm -v ./doc/sample-models:/var/pict:Z pict:latest create_volume.txt
 
 To use your own models, please execute
 

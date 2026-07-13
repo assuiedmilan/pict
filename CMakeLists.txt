@@ -1,15 +1,4 @@
-cmake_minimum_required(VERSION 3.13)
-
-# Allow CMake 3.13+ to override options when using FetchContent/add_subdirectory.
-# option honors normal variables
-if (POLICY CMP0077)
-  cmake_policy(SET CMP0077 NEW)
-endif()
-
-# INTERFACE_LINK_LIBRARIES defines the link interface.
-if (POLICY CMP0022)
-  cmake_policy (SET CMP0022 NEW)
-endif()
+cmake_minimum_required(VERSION 3.16)
 
 # PICT version, build, and product info
 set(PICT_VERSION_MAJOR 3 CACHE STRING "PICT major version")
@@ -30,11 +19,11 @@ project(
 )
 
 # Build configuration
-option(PICT_RUN_TESTS_ENABLED        "Enable running tests after build" ON)
+option(PICT_RUN_TESTS_ENABLED "Enable running tests after build" ON)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_DISABLE_PRECOMPILE_HEADERS ON)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(PICT_BUILD_OPTIONS PictBuildOptions)
@@ -43,10 +32,9 @@ add_library(${PICT_BUILD_OPTIONS}
 )
 
 if (MSVC)
-  # Enable multi-threaded build with MSVC
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   target_compile_options(${PICT_BUILD_OPTIONS}
     INTERFACE
+      /MP # Enable multi-threaded build
       /W4 /WX
       /wd4189 # DOUT(arg) has unused parameters. Suppressing the warning here.
   )
@@ -88,7 +76,6 @@ target_compile_definitions(${PICT_BUILD_OPTIONS}
 
 add_subdirectory (api)
 add_subdirectory (cli)
-add_subdirectory (clidll)
 
 if(PICT_RUN_TESTS_ENABLED)
   enable_testing()
@@ -96,12 +83,7 @@ if(PICT_RUN_TESTS_ENABLED)
 endif()
 
 if(WIN32)
-  add_subdirectory(api-usage)
-  add_subdirectory(clidll-usage)
-endif()
-
-if(WIN32)
-  set(CPACK_GENERATOR ZIP NUGET)
+  set(CPACK_GENERATOR ZIP)
 else()
   set(CPACK_GENERATOR TGZ)
 endif()
@@ -114,22 +96,25 @@ set(CPACK_SOURCE_IGNORE_FILES
 )
 set(CPACK_VERBATIM_VARIABLES YES)
 
-execute_process(
-  COMMAND git log --pretty=format:%H -n 1
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_COMMIT_HASH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+find_package(Git QUIET)
+if(Git_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} log --pretty=format:%h -n 1
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_SHORT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+endif()
 
-execute_process(
-  COMMAND git log --pretty=format:%h -n 1
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-  OUTPUT_VARIABLE GIT_SHORT_COMMIT_HASH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-set(CPACK_SOURCE_PACKAGE_FILE_NAME
-  ${CMAKE_PROJECT_NAME}-${GIT_SHORT_COMMIT_HASH}
-)
+if(GIT_SHORT_COMMIT_HASH)
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    ${CMAKE_PROJECT_NAME}-${GIT_SHORT_COMMIT_HASH}
+  )
+else()
+  set(CPACK_SOURCE_PACKAGE_FILE_NAME
+    ${CMAKE_PROJECT_NAME}-${PICT_VERSION_FULL}
+  )
+endif()
 
 include(CPack)

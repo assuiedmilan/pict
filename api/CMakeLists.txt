@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 set(target_name
   pict_api
 )
@@ -40,6 +42,7 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}
 target_include_directories(${target_name}
   INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -53,4 +56,11 @@ set_target_properties(${target_name}
   PROPERTIES
     FOLDER src
     OUTPUT_NAME ${pict_api_output}
+    PUBLIC_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/pictapi.h
+)
+
+install(
+  TARGETS ${target_name}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
