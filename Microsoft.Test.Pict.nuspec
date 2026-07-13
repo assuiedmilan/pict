@@ -10,14 +10,14 @@
         <description>PICT - Combinatorial Testing Tool</description>
     </metadata>
     <files>
-        <file src="Release/cli/pict.exe" target="contents/win-x64/exe" />
-        <file src="Release/cli/pict.pdb" target="contents/win-x64/exe" />
+        <file src="build/cli/RelWithDebInfo/pict.exe" target="contents/win-x64/exe" />
+        <file src="build/cli/RelWithDebInfo/pict.pdb" target="contents/win-x64/exe" />
 
-        <file src="Release/api/pict.lib" target="contents/win-x64/api" />
+        <file src="build/api/RelWithDebInfo/pict.lib" target="contents/win-x64/api" />
         <file src="api/pictapi.h" target="contents/win-x64/api" />
 
-        <file src="Release/clidll/pict.dll" target="contents/win-x64/dll" />
-        <file src="Release/clidll/pict.pdb" target="contents/win-x64/dll" />
+        <file src="build/api/RelWithDebInfo/pict.dll" target="contents/win-x64/dll" />
+        <file src="build/api/RelWithDebInfo/pict.pdb" target="contents/win-x64/dll" />
 
         <file src="doc/pict.md" target="contents" />
         <file src="LICENSE.txt" target="contents" />

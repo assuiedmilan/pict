@@ -15,16 +15,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        # macOS runners pinned explicitly: macos-latest migrates to macOS 26 in June 2026
+        os: [ubuntu-latest, windows-latest, macos-15, macos-26]
 
     steps:
-    - uses: actions/checkout@v3
-
-    - name: Compile
-      run: make
-
-    - name: Test
-      run: make test
+    - uses: actions/checkout@v5
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -34,4 +29,20 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v6
+      with:
+        name: pict-${{ matrix.os }}
+        path: |
+          build/cli/${{ env.BUILD_TYPE }}/pict.exe
+          build/cli/${{ env.BUILD_TYPE }}/pict.pdb
+          build/api/${{ env.BUILD_TYPE }}/pict.lib
+          build/api/${{ env.BUILD_TYPE }}/pict.dll
+          build/api/${{ env.BUILD_TYPE }}/pict.pdb
+          build/cli/pict
+          build/api/libpict.a
+          build/api/libpict.so
+          build/api/libpict.dylib
+        if-no-files-found: error

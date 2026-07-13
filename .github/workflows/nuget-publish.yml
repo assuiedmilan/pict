@@ -7,34 +7,26 @@ on:
   workflow_dispatch:
 
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
+  # Configuration type to build. RelWithDebInfo keeps PDBs for the NuGet package.
+  BUILD_CONFIGURATION: RelWithDebInfo
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
       packages: write
-      
-    steps:
-    - uses: actions/checkout@v3
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_CONFIGURATION}}
 
     - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_CONFIGURATION}}
 
     - name: Add NUGET to PATH
-      uses: NuGet/setup-nuget@v1.0.5
+      uses: NuGet/setup-nuget@v2
 
     - name: Create a package
       run: nuget pack

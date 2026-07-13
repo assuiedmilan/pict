@@ -38,10 +38,6 @@ set(pict_cli_src
   ${CMAKE_CURRENT_SOURCE_DIR}/strings.cpp
 )
 
-set(pict_cli_dll_src
-  ${pict_cli_src} PARENT_SCOPE
-)
-
 set(pict_cli_rc
   $<$<BOOL:${WIN32}>:${CMAKE_CURRENT_SOURCE_DIR}/Resource.rc>
 )
@@ -71,8 +67,8 @@ set_target_properties(${target_name}
 )
 
 install(
-  PROGRAMS $<TARGET_FILE:${target_name}>
-  TYPE BIN
+  TARGETS ${target_name}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(
