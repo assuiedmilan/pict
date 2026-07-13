@@ -30,3 +30,19 @@ jobs:
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v6
+      with:
+        name: pict-${{ matrix.os }}
+        path: |
+          build/cli/${{ env.BUILD_TYPE }}/pict.exe
+          build/cli/${{ env.BUILD_TYPE }}/pict.pdb
+          build/api/${{ env.BUILD_TYPE }}/pict.lib
+          build/api/${{ env.BUILD_TYPE }}/pict.dll
+          build/api/${{ env.BUILD_TYPE }}/pict.pdb
+          build/cli/pict
+          build/api/libpict.a
+          build/api/libpict.so
+          build/api/libpict.dylib
+        if-no-files-found: error

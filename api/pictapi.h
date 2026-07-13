@@ -14,7 +14,8 @@
 #endif
 
 #if defined( __GNUC__ )
-#define API_SPEC
+// Keep the API exported when built as a shared library with -fvisibility=hidden
+#define API_SPEC __attribute__(( visibility( "default" )))
 #else
 #define API_SPEC __stdcall
 #endif

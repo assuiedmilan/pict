@@ -25,7 +25,7 @@ The most recent **pict.exe** is available at https://github.com/microsoft/pict/r
 # Contributing
 
 PICT consists of the following projects:
- * **api**: The core combinatorial engine, built as the static library **pict_api**,
+ * **api**: The core combinatorial engine, built as the static library **pict_api** and as the shared library **pict_shared** (`pict.dll` / `libpict.dylib` / `libpict.so`) whose exported C API (see **api/pictapi.h**) can be consumed from other languages, e.g. C# via `[DllImport("pict")]`,
  * **cli**: The PICT command-line tool, built as the executable **pict_cli**.
 
 The **clidll**, **api-usage**, and **clidll-usage** directories contain legacy sample/wrapper sources and are not part of the build.
